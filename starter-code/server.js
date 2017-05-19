@@ -1,23 +1,12 @@
 'use strict';
 
-// const randomArray = [
-//   {
-//     title:'Flibbity goes Jibbiting',
-//     author:'Flibbity Jibbit',
-//     authorUrl:'flibbity.jibbit.com',
-//     category:'jibbits',
-//     publishedOn:'01-01-2217',
-//     body:'Flibbity Jibbit and the Key Keeper',
-//     author_id: '1'
-//   }
-// ]
 const pg = require('pg');
 const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
-const conString = 'postgres://postgres:1234@localhost:5432/kilovolt';
+const conString = 'postgres://localhost:5432';
 const client = new pg.Client(conString);
 client.connect();
 client.on('error', function(error) {
@@ -73,12 +62,11 @@ app.post('/articles', function(request, response) {
        // TODO: Write a SQL query to retrieve the author_id from the authors table for the new article
       [
         request.body.author
-      ], // TODO: Add the author name as data for the SQL query
+      ],
+      // TODO: Add the author name as data for the SQL query
       function(err, result) {
         if (err) console.error(err)
-        console.log(result);
-
-        // queryThree(result.rows[0].author_id)
+        queryThree(result.rows[0].author_id)
         // This is our third query, to be executed when the second is complete. We are also passing the author_id into our third query
       }
     )
@@ -88,14 +76,16 @@ app.post('/articles', function(request, response) {
     client.query(
       `INSERT INTO articles
       (author_id, title, category, "publishedOn", body)
-      VALUES ($1, $2, $3, $4, $5)`, // TODO: Write a SQL query to insert the new article using the author_id from our previous query
+      VALUES ($1, $2, $3, $4, $5)`,
+      // TODO: Write a SQL query to insert the new article using the author_id from our previous query
       [
         author_id,
         request.body.title,
         request.body.category,
         request.body.publishedOn,
         request.body.body
-      ], // TODO: Add the data from our new article, including the author_id, as data for the SQL query.
+      ],
+      // TODO: Add the data from our new article, including the author_id, as data for the SQL query.
       function(err) {
         if (err) console.error(err);
         response.send('insert complete');
